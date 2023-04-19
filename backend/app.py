@@ -1,40 +1,97 @@
-import json
+import csv
 import os
+import json
 from flask import Flask, render_template, request
 from flask_cors import CORS
-from helpers.MySQLDatabaseHandler import MySQLDatabaseHandler
+from collections import defaultdict
+import pandas as pd
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.metrics.pairwise import cosine_similarity
+import numpy as np
+import random
 
-# ROOT_PATH for linking with all your files.
-# Feel free to use a config.py or settings.py with a global export variable
 os.environ['ROOT_PATH'] = os.path.abspath(os.path.join("..", os.curdir))
 
-# These are the DB credentials for your OWN MySQL
-# Don't worry about the deployment credentials, those are fixed
-# You can use a different DB name if you want to
-MYSQL_USER = "admin"
-MYSQL_USER_PASSWORD = "admin"
-MYSQL_PORT = 3306
-MYSQL_DATABASE = "rotten_tomatoes"
-
-mysql_engine = MySQLDatabaseHandler(
-    MYSQL_USER, MYSQL_USER_PASSWORD, MYSQL_PORT, MYSQL_DATABASE)
-
-# Path to init.sql file. This file can be replaced with your own file for testing on localhost, but do NOT move the init.sql file
-mysql_engine.load_file_into_db()
+MOVIES_CSV_PATH = os.path.join(os.environ['ROOT_PATH'], 'backend/rotten_tomatoes_movies.csv')
 
 app = Flask(__name__)
 CORS(app)
 
-# Sample search, the LIKE operator in this case is hard-coded,
-# but if you decide to use SQLAlchemy ORM framework,
-# there's a much better and cleaner way to do this
+
+def csv_data():
+    book_description = defaultdict(str)
+    movie_code_names = defaultdict(str)
+    movie_reviews = defaultdict(str)
+    with open('books_description.csv', 'r') as csvfile:
+        csvreader = csv.DictReader(csvfile)
+        for row in csvreader:
+            book = row['book_title']
+            desc = row['description']
+            book_description[book] = desc
+    with open('movie_codes.csv', 'r') as csvfile:
+        csvreader = csv.DictReader(csvfile)
+        for row in csvreader:
+            movie_code= row['movie_code']
+            movie_name = row['movie_name']
+            movie_code_names[movie_code] = movie_name
+    with open('movie_reviews.csv', 'r') as csvfile:
+        csvreader = csv.DictReader(csvfile)
+        for row in csvreader:
+            movie_code= row['movie_code']
+            rev = row['review']
+            movie_reviews[movie_code] = rev
+    return book_description, movie_code_names, movie_reviews
+
+def logic(book_description, movie_code_names, movie_reviews):
+    texts = list(movie_reviews.values()) + list(book_description.values())
+    books_rev_ind = {}
+
+    vectorizer = TfidfVectorizer(max_features=500)
+
+    tfidf_vectors = vectorizer.fit_transform(texts)
+    book_starting_index = len(movie_reviews.values())
+    movie_starting_index = 0
+    for i, book in enumerate(book_description.keys()):
+        books_rev_ind[i + book_starting_index] = book
+
+    similarity_matrix = cosine_similarity(tfidf_vectors)
+    return similarity_matrix, books_rev_ind, book_starting_index
 
 
-def sql_search(episode):
-    query_sql = f"""SELECT * FROM movies WHERE LOWER( movie_title ) LIKE '%%{episode.lower()}%%' limit 10"""
-    keys = ["rotten_tomatoes_link", "movie_title", "movie_info"]
-    data = mysql_engine.query_selector(query_sql)
-    return json.dumps([dict(zip(keys, i)) for i in data])
+def find_similar_books(movie_name, similarity_matrix, movie_code_names, book_description, books_rev_ind, book_starting_index, num_books=10):
+    
+    try:
+        movie_index = list(movie_code_names.values()).index(movie_name)
+    except ValueError:
+        print(f"Movie '{movie_name}' not found.")
+        return
+
+    # Get the similarity scores for this movie
+    movie_scores = similarity_matrix[movie_index][book_starting_index:]
+
+    # Find the indices of the top-n most similar movies
+    book_indices = np.argsort(movie_scores)[-num_books-1:-1][::-1]
+    if len(book_indices) == 0:
+        print("No similar books found.")
+        return
+
+    out = []
+
+    # Print out the names of the top-n most similar movies
+    # print(f"Books similar to '{movie_name}':")
+    for book_index in book_indices:
+        book_index += book_starting_index
+        if book_index in books_rev_ind:
+            book_name = books_rev_ind[book_index]
+            out.append(book_name)
+            # out[book_name] = book_description[book_name]
+            # print(f"  - {book_name}")
+        else:
+            continue
+    return out
+
+
+
 
 
 @app.route("/")
@@ -44,8 +101,15 @@ def home():
 
 @app.route("/movies")
 def episodes_search():
-    text = request.args.get("title")
-    return sql_search(text)
+    text = request.args.get("title") #text = our input
+    book_description, movie_code_names, movie_reviews = csv_data()
+    keys = ["book_title"]
+    similarity_matrix, books_rev_ind, book_starting_index = logic(book_description, movie_code_names, movie_reviews)
+    data = find_similar_books(text, similarity_matrix, movie_code_names, book_description, books_rev_ind, book_starting_index, num_books=10)
+    # return json.dumps([dict(zip(keys, i)) for i in data])
+    print(data)
+    return json.dumps(data)
 
 
-# app.run(debug=True)
+if __name__ == '__main__':
+    app.run(debug=True)

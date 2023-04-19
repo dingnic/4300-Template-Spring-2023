@@ -36,18 +36,22 @@
         }
 
         function filterText() {
-            document.getElementById("answer-box").innerHTML = ""
-            console.log(document.getElementById("filter-text-val").value)
+            document.getElementById("answer-box").innerHTML = "";
+            console.log(document.getElementById("filter-text-val").value);
             fetch("/movies?" + new URLSearchParams({ title: document.getElementById("filter-text-val").value }).toString())
                 .then((response) => response.json())
-                .then((data) => data.forEach(row => {
-
-                    let tempDiv = document.createElement("div")
-                    tempDiv.innerHTML = answerBoxTemplate(row.movie_title, row.movie_info)
-                    document.getElementById("answer-box").appendChild(tempDiv)
-                }));
-
+                .then((data) => {
+                    data.forEach((item) => {
+                        let tempDiv = document.createElement("div");
+                        tempDiv.textContent = item; // Set the text content of the div to the item from the response
+                        document.getElementById("answer-box").appendChild(tempDiv);
+                    });
+                })
+                .catch((error) => {
+                    console.error("Error fetching movies:", error);
+                });
         }
+
 
     </script>
 </body>
