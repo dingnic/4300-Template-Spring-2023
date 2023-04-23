@@ -9,7 +9,7 @@ import random
 
 pand = "python -m pip install pandas"
 skl = "python pip install scikit-learn"
-nump = "python pip install numpy"
+nump = "python -m pip install numpy"
 os.system(pand)
 os.system(skl)
 os.system(nump)
