@@ -12,6 +12,8 @@ import random
 pand = "python -m pip install pandas"
 skl = "python -m pip -U install scikit-learn"
 os.system(pand)
+os.system(skl)
+
 import pandas as pd
 
 os.environ['ROOT_PATH'] = os.path.abspath(os.path.join("..", os.curdir))
