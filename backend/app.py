@@ -10,6 +10,7 @@ import numpy as np
 import random
 
 pand = "python -m pip install pandas"
+skl = "python -m pip install scikit-learn"
 os.system(pand)
 import pandas as pd
 
