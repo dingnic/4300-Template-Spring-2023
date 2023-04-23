@@ -4,11 +4,14 @@ import json
 from flask import Flask, render_template, request
 from flask_cors import CORS
 from collections import defaultdict
-import pandas as pd
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 import numpy as np
 import random
+
+pand = "pip install pandas"
+os.system(pand)
+import pandas as pd
 
 os.environ['ROOT_PATH'] = os.path.abspath(os.path.join("..", os.curdir))
 
@@ -17,30 +20,53 @@ MOVIES_CSV_PATH = os.path.join(os.environ['ROOT_PATH'], 'backend/rotten_tomatoes
 app = Flask(__name__)
 CORS(app)
 
+book_description = defaultdict(str)
+movie_code_names = defaultdict(str)
+movie_reviews = defaultdict(str)
+with open('books_description.csv', 'r') as csvfile:
+    csvreader = csv.DictReader(csvfile)
+    for row in csvreader:
+        book = row['book_title']
+        desc = row['description']
+        book_description[book] = desc
+with open('movie_codes.csv', 'r') as csvfile:
+    csvreader = csv.DictReader(csvfile)
+    for row in csvreader:
+        movie_code= row['movie_code']
+        movie_name = row['movie_name']
+        movie_code_names[movie_code] = movie_name
+with open('movie_reviews.csv', 'r') as csvfile:
+    csvreader = csv.DictReader(csvfile)
+    for row in csvreader:
+        movie_code= row['movie_code']
+        rev = row['review']
+        movie_reviews[movie_code] = rev
 
-def csv_data():
-    book_description = defaultdict(str)
-    movie_code_names = defaultdict(str)
-    movie_reviews = defaultdict(str)
-    with open('books_description.csv', 'r') as csvfile:
-        csvreader = csv.DictReader(csvfile)
-        for row in csvreader:
-            book = row['book_title']
-            desc = row['description']
-            book_description[book] = desc
-    with open('movie_codes.csv', 'r') as csvfile:
-        csvreader = csv.DictReader(csvfile)
-        for row in csvreader:
-            movie_code= row['movie_code']
-            movie_name = row['movie_name']
-            movie_code_names[movie_code] = movie_name
-    with open('movie_reviews.csv', 'r') as csvfile:
-        csvreader = csv.DictReader(csvfile)
-        for row in csvreader:
-            movie_code= row['movie_code']
-            rev = row['review']
-            movie_reviews[movie_code] = rev
-    return book_description, movie_code_names, movie_reviews
+
+
+# def csv_data():
+#     book_description = defaultdict(str)
+#     movie_code_names = defaultdict(str)
+#     movie_reviews = defaultdict(str)
+#     with open('books_description.csv', 'r') as csvfile:
+#         csvreader = csv.DictReader(csvfile)
+#         for row in csvreader:
+#             book = row['book_title']
+#             desc = row['description']
+#             book_description[book] = desc
+#     with open('movie_codes.csv', 'r') as csvfile:
+#         csvreader = csv.DictReader(csvfile)
+#         for row in csvreader:
+#             movie_code= row['movie_code']
+#             movie_name = row['movie_name']
+#             movie_code_names[movie_code] = movie_name
+#     with open('movie_reviews.csv', 'r') as csvfile:
+#         csvreader = csv.DictReader(csvfile)
+#         for row in csvreader:
+#             movie_code= row['movie_code']
+#             rev = row['review']
+#             movie_reviews[movie_code] = rev
+#     return book_description, movie_code_names, movie_reviews
 
 def logic(book_description, movie_code_names, movie_reviews):
     texts = list(movie_reviews.values()) + list(book_description.values())
@@ -57,6 +83,7 @@ def logic(book_description, movie_code_names, movie_reviews):
     similarity_matrix = cosine_similarity(tfidf_vectors)
     return similarity_matrix, books_rev_ind, book_starting_index
 
+similarity_matrix, books_rev_ind, book_starting_index = logic(book_description, movie_code_names, movie_reviews)
 
 def find_similar_books(movie_name, similarity_matrix, movie_code_names, book_description, books_rev_ind, book_starting_index, num_books=10):
     
@@ -102,9 +129,9 @@ def home():
 @app.route("/movies")
 def episodes_search():
     text = request.args.get("title") #text = our input
-    book_description, movie_code_names, movie_reviews = csv_data()
+    # book_description, movie_code_names, movie_reviews = csv_data()
     keys = ["book_title"]
-    similarity_matrix, books_rev_ind, book_starting_index = logic(book_description, movie_code_names, movie_reviews)
+    # similarity_matrix, books_rev_ind, book_starting_index = logic(book_description, movie_code_names, movie_reviews)
     data = find_similar_books(text, similarity_matrix, movie_code_names, book_description, books_rev_ind, book_starting_index, num_books=10)
     # return json.dumps([dict(zip(keys, i)) for i in data])
     print(data)
