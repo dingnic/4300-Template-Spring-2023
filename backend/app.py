@@ -4,8 +4,6 @@ import json
 from flask import Flask, render_template, request
 from flask_cors import CORS
 from collections import defaultdict
-from sklearn.feature_extraction.text import TfidfVectorizer
-from sklearn.metrics.pairwise import cosine_similarity
 import numpy as np
 import random
 
@@ -15,6 +13,8 @@ os.system(pand)
 os.system(skl)
 
 import pandas as pd
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.metrics.pairwise import cosine_similarity
 
 os.environ['ROOT_PATH'] = os.path.abspath(os.path.join("..", os.curdir))
 
