@@ -9,12 +9,15 @@ import random
 
 pand = "python -m pip install pandas"
 skl = "python pip install scikit-learn"
+nump = "python pip install numpy"
 os.system(pand)
 os.system(skl)
+os.system(nump)
 
 import pandas as pd
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
+import numpy as np
 
 os.environ['ROOT_PATH'] = os.path.abspath(os.path.join("..", os.curdir))
 
