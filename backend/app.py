@@ -9,7 +9,7 @@ from sklearn.metrics.pairwise import cosine_similarity
 import numpy as np
 import random
 
-pand = "pip install pandas"
+pand = "python -m pip install pandas"
 os.system(pand)
 import pandas as pd
 
