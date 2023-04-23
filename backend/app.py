@@ -4,12 +4,11 @@ import json
 from flask import Flask, render_template, request
 from flask_cors import CORS
 from collections import defaultdict
-import numpy as np
 import random
 
 pand = "python -m pip install pandas"
 skl = "python pip install scikit-learn"
-nump = "pip install numpy"
+nump = "python pip install numpy"
 os.system(pand)
 os.system(skl)
 os.system(nump)
