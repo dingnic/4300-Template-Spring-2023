@@ -12,6 +12,10 @@
     flex-direction: column;
 }
 
+.clicked {
+    color: green;
+}
+
 #title-logo {
     color: #274e13;
 }

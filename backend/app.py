@@ -6,12 +6,12 @@ from flask_cors import CORS
 from collections import defaultdict
 import random
 
-pand = "python -m pip install pandas"
-skl = "python -m pip install scikit-learn"
-nump = "python pip install numpy"
-os.system(pand)
-os.system(skl)
-os.system(nump)
+# pand = "python -m pip install pandas"
+# skl = "python -m pip install scikit-learn"
+# nump = "python pip install numpy"
+# os.system(pand)
+# os.system(skl)
+# os.system(nump)
 
 import pandas as pd
 from sklearn.feature_extraction.text import TfidfVectorizer
@@ -28,6 +28,7 @@ CORS(app)
 book_description = defaultdict(str)
 movie_code_names = defaultdict(str)
 movie_reviews = defaultdict(str)
+
 with open('books_description.csv', 'r') as csvfile:
     csvreader = csv.DictReader(csvfile)
     for row in csvreader:
@@ -47,31 +48,7 @@ with open('movie_reviews.csv', 'r') as csvfile:
         rev = row['review']
         movie_reviews[movie_code] = rev
 
-
-
-# def csv_data():
-#     book_description = defaultdict(str)
-#     movie_code_names = defaultdict(str)
-#     movie_reviews = defaultdict(str)
-#     with open('books_description.csv', 'r') as csvfile:
-#         csvreader = csv.DictReader(csvfile)
-#         for row in csvreader:
-#             book = row['book_title']
-#             desc = row['description']
-#             book_description[book] = desc
-#     with open('movie_codes.csv', 'r') as csvfile:
-#         csvreader = csv.DictReader(csvfile)
-#         for row in csvreader:
-#             movie_code= row['movie_code']
-#             movie_name = row['movie_name']
-#             movie_code_names[movie_code] = movie_name
-#     with open('movie_reviews.csv', 'r') as csvfile:
-#         csvreader = csv.DictReader(csvfile)
-#         for row in csvreader:
-#             movie_code= row['movie_code']
-#             rev = row['review']
-#             movie_reviews[movie_code] = rev
-#     return book_description, movie_code_names, movie_reviews
+movie_list = list(movie_code_names.values())
 
 def logic(book_description, movie_code_names, movie_reviews):
     texts = list(movie_reviews.values()) + list(book_description.values())
@@ -89,6 +66,17 @@ def logic(book_description, movie_code_names, movie_reviews):
     return similarity_matrix, books_rev_ind, book_starting_index
 
 similarity_matrix, books_rev_ind, book_starting_index = logic(book_description, movie_code_names, movie_reviews)
+
+def jaccard(movie, query):
+    query = query.lower()
+    movie = movie.lower()
+    string1 = query.split()
+    string2 = movie.split()
+    set1 = set(string1)
+    set2 = set(string2)
+
+    jaccard_similarity = len(set1.intersection(set2)) / len(set1.union(set2))
+    return jaccard_similarity
 
 def find_similar_books(movie_name, similarity_matrix, movie_code_names, book_description, books_rev_ind, book_starting_index, num_books=10):
     
@@ -130,14 +118,29 @@ def find_similar_books(movie_name, similarity_matrix, movie_code_names, book_des
 def home():
     return render_template('base.html', title="sample html")
 
+@app.route("/movie-search")
+def movie_search():
+    text = request.args.get("title") #text = our input
+    jaccard_similarities = np.array(
+    [jaccard(text, movie) for movie in movie_list])
+
+    # top 5 similar movies to the query (should be displayed to the user)
+    top_indices = jaccard_similarities.argsort()[::-1][:5]
+    sim_movies = []
+    for i in top_indices:
+        sim_movies.append(movie_list[i])
+
+    return json.dumps(list(sim_movies))
+
 
 @app.route("/movies")
 def episodes_search():
-    text = request.args.get("title") #text = our input
-    # book_description, movie_code_names, movie_reviews = csv_data()
-    keys = ["book_title"]
+    movies = request.args.getlist("movies")
+    print(movies)
+    movie = str(movies[0])
+    print(movie)
     # similarity_matrix, books_rev_ind, book_starting_index = logic(book_description, movie_code_names, movie_reviews)
-    data = find_similar_books(text, similarity_matrix, movie_code_names, book_description, books_rev_ind, book_starting_index, num_books=10)
+    data = find_similar_books(movie, similarity_matrix, movie_code_names, book_description, books_rev_ind, book_starting_index, num_books=10)
     # return json.dumps([dict(zip(keys, i)) for i in data])
     print(data)
     return json.dumps(data)

@@ -14,8 +14,10 @@
             </div>
             <div class="input-box" onclick="sendFocus()">
                 <img src="{{ url_for('static', filename='images/mag.png') }}" />
-                <input placeholder="Input a book title" id="filter-text-val" onkeyup="filterText()">
+                <input placeholder="Input a book title" id="filter-text-val" onkeyup="findMovie()">
+                <button type="rec-books" onclick="generateRec(findMovie())">Generate!</button>
             </div>
+
         </div>
         <div id="answer-box">
 
@@ -39,6 +41,52 @@
             document.getElementById("answer-box").innerHTML = "";
             console.log(document.getElementById("filter-text-val").value);
             fetch("/movies?" + new URLSearchParams({ title: document.getElementById("filter-text-val").value }).toString())
+                .then((response) => response.json())
+                .then((data) => {
+                    data.forEach((item) => {
+                        let tempDiv = document.createElement("div");
+                        tempDiv.textContent = item; // Set the text content of the div to the item from the response
+                        document.getElementById("answer-box").appendChild(tempDiv);
+                    });
+                })
+                .catch((error) => {
+                    console.error("Error fetching movies:", error);
+                });
+        }
+        clickedMovies = []
+        function findMovie() {
+            document.getElementById("answer-box").innerHTML = "";
+            console.log(document.getElementById("filter-text-val").value);
+            fetch("/movie-search?" + new URLSearchParams({ title: document.getElementById("filter-text-val").value }).toString())
+                .then((response) => response.json())
+                .then((data) => {
+                    data.forEach((item) => {
+                        let tempDiv = document.createElement("div");
+                        tempDiv.textContent = item; // Set the text content of the div to the item from the response
+                        tempDiv.addEventListener("click", () => {
+                            if (clickedMovies.includes(item)) {
+                                clickedMovies = clickedMovies.filter((b) => b !== item);
+                                tempDiv.classList.remove("clicked");
+                            } else {
+                                console.log("Movie clicked: ", item)
+                                clickedMovies.push(String(item));
+                                tempDiv.classList.add("clicked");
+                            }
+                            console.log("Clicked books:", clickedMovies);
+                        });
+                        document.getElementById("answer-box").appendChild(tempDiv);
+                    });
+                    console.log("books:", clickedBooks);
+                    return clickedMovies;
+
+                })
+                .catch((error) => {
+                    console.error("Error fetching movies:", error);
+                });
+        }
+        function generateRec() {
+            console.log("Clicked books:", clickedMovies);
+            fetch("/movies?" + new URLSearchParams({ movies: clickedMovies }))
                 .then((response) => response.json())
                 .then((data) => {
                     data.forEach((item) => {
