@@ -9,7 +9,7 @@
 <body>
     <div class="full-body-container">
         <div class="top-text">
-            <div class="google-colors">
+            <div>
                 <h1 id="title-logo">LitCinema</h1>
             </div>
             <div class="input-box" onclick="sendFocus()">
@@ -23,8 +23,21 @@
 
         </div>
     </div>
+    <button id="help">?</button>
+    <div id="help-panel">
+        TEMP
+    </div>
 
     <script>
+        const helpButton = document.getElementById("help");
+        const helpPanel = document.getElementById("help-panel");
+        const overlay = document.querySelector('.overlay');
+
+        helpButton.addEventListener("click", function () {
+            helpPanel.classList.toggle("active");
+            // helpPanel.style.display = helpPanel.style.display === "none" ? "block" : "none";
+            overlay.classList.toggle('active');
+        });
 
         function answerBoxTemplate(title, titleDesc) {
             return `<div class=''>
@@ -61,23 +74,24 @@
                 .then((response) => response.json())
                 .then((data) => {
                     data.forEach((item) => {
-                        let tempDiv = document.createElement("div");
-                        tempDiv.textContent = item; // Set the text content of the div to the item from the response
-                        tempDiv.addEventListener("click", () => {
-                            if (clickedMovies.includes(item)) {
-                                clickedMovies = clickedMovies.filter((b) => b !== item);
-                                tempDiv.classList.remove("clicked");
-                            } else {
-                                console.log("Movie clicked: ", item)
-                                clickedMovies.push(String(item));
-                                tempDiv.classList.add("clicked");
-                            }
-                            console.log("Clicked books:", clickedMovies);
-                        });
-                        document.getElementById("answer-box").appendChild(tempDiv);
+                        if (item != "") {
+                            let tempDiv = document.createElement("div");
+                            tempDiv.classList.add("film");
+                            tempDiv.textContent = item; // Set the text content of the div to the item from the response
+                            tempDiv.addEventListener("click", () => {
+                                if (clickedMovies.includes(item)) {
+                                    clickedMovies = clickedMovies.filter((b) => b !== item);
+                                    tempDiv.classList.remove("clicked");
+                                } else {
+                                    console.log("Movie clicked: ", item)
+                                    clickedMovies.push(String(item));
+                                    tempDiv.classList.add("clicked");
+                                }
+                                console.log("Clicked books:", clickedMovies);
+                            });
+                            document.getElementById("answer-box").appendChild(tempDiv);
+                        }
                     });
-                    console.log("books:", clickedBooks);
-                    return clickedMovies;
 
                 })
                 .catch((error) => {

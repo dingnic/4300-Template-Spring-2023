@@ -1,6 +1,6 @@
 .full-body-container {
     position: absolute;
-    top: 0;
+    top: 25%;
     left: 0;
     right: 0;
     bottom: 0;
@@ -12,6 +12,14 @@
     flex-direction: column;
 }
 
+.film {
+    display: inline-block;
+    margin: 10px;
+    padding: 10px;
+    background-color: #f0f0f0;
+    border: 1px solid #ccc;
+}
+
 .clicked {
     color: green;
 }
@@ -20,16 +28,28 @@
     color: #274e13;
 }
 
-.google-colors {
-    display: flex;
-    align-items: center;
-    font-size: 48px;
-    font-family: 'Open Sans', sans-serif;
+.hidden {
+    display: none;
 }
 
-.google-colors h1 {
-    margin-bottom: 0;
-    margin-right: 3px;
+.overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 1;
+    filter: blur(5px);
+    -webkit-filter: blur(5px);
+    /* Safari 9+ and Chrome 49+ */
+    transition: all 0.3s ease-in-out;
+}
+
+.overlay.active {
+    display: block;
+    filter: none;
+    -webkit-filter: none;
 }
 
 .input-box {
@@ -72,4 +92,39 @@
 
 .episode-desc {
     font-family: 'Montserrat', sans-serif;
+}
+
+.panel-content {
+    padding: 20px;
+}
+
+#help-panel {
+    position: fixed;
+    top: 0;
+    left: -400px;
+    width: 400px;
+    height: 100%;
+    background-color: grey;
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.3);
+    transition: left 0.3s ease-out;
+    z-index: 9999;
+}
+
+#help-panel.active {
+    left: 0;
+}
+
+#help {
+    border-radius: 25px;
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    width: 50px;
+    height: 50px;
+    background-color: #333;
+    color: #fff;
+    font-size: 20px;
+    text-align: center;
+    cursor: pointer;
+    z-index: 99999;
 }
