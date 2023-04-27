@@ -68,7 +68,7 @@
                     console.error("Error fetching movies:", error);
                 });
         }
-        clickedMovies = []
+        clickedMovie = null
         function findMovie() {
             document.getElementById("answer-box").innerHTML = "";
             console.log(document.getElementById("filter-text-val").value);
@@ -79,17 +79,20 @@
                         if (item != "") {
                             let tempDiv = document.createElement("div");
                             tempDiv.classList.add("film");
-                            tempDiv.textContent = item; // Set the text content of the div to the item from the response
+                            tempDiv.textContent = String(item);
                             tempDiv.addEventListener("click", () => {
-                                if (clickedMovies.includes(item)) {
-                                    clickedMovies = clickedMovies.filter((b) => b !== item);
+                                if (clickedMovie === null) {
+                                    clickedMovie = tempDiv;
+                                    tempDiv.classList.add("clicked");
+                                } else if (clickedMovie === tempDiv) {
+                                    clickedMovie = null;
                                     tempDiv.classList.remove("clicked");
-                                } else {
-                                    console.log("Movie clicked: ", item)
-                                    clickedMovies.push(String(item));
+                                }
+                                else {
+                                    clickedMovie.classList.remove("clicked");
+                                    clickedMovie = tempDiv;
                                     tempDiv.classList.add("clicked");
                                 }
-                                console.log("Clicked books:", clickedMovies);
                             });
                             document.getElementById("answer-box").appendChild(tempDiv);
                         }
@@ -101,8 +104,8 @@
                 });
         }
         function generateRec() {
-            console.log("Clicked books:", clickedMovies);
-            fetch("/movies?" + new URLSearchParams({ movies: clickedMovies }))
+            console.log("Clicked books:", clickedMovie);
+            fetch("/movies?" + new URLSearchParams({ movie: String(clickedMovie.textContent) }))
                 .then((response) => response.json())
                 .then((data) => {
                     data.forEach((item) => {
