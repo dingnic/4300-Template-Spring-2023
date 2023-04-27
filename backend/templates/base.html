@@ -11,10 +11,12 @@
         <div class="top-text">
             <div>
                 <h1 id="title-logo">LitCinema</h1>
+
+                <body id="slogan">Unlock a world of stories with just a movie title </body>
             </div>
             <div class="input-box" onclick="sendFocus()">
-                <img src="{{ url_for('static', filename='images/mag.png') }}" />
-                <input placeholder="Input a book title" id="filter-text-val" onkeyup="findMovie()">
+                <img src="{{ url_for('static', filename='images/search.png') }}" />
+                <input placeholder="Type in your favorite movie!" id="filter-text-val" onkeyup="findMovie()">
                 <button type="rec-books" onclick="generateRec(findMovie())">Generate!</button>
             </div>
 
