@@ -6,12 +6,12 @@ from flask_cors import CORS
 from collections import defaultdict
 import random
 
-pand = "python -m pip install pandas"
-skl = "python -m pip install scikit-learn"
-nump = "python pip install numpy"
-os.system(pand)
-os.system(skl)
-os.system(nump)
+# pand = "python -m pip install pandas"
+# skl = "python -m pip install scikit-learn"
+# nump = "python pip install numpy"
+# os.system(pand)
+# os.system(skl)
+# os.system(nump)
 
 import pandas as pd
 from sklearn.feature_extraction.text import TfidfVectorizer
@@ -26,8 +26,10 @@ app = Flask(__name__)
 CORS(app)
 
 book_description = defaultdict(str)
-movie_code_names = defaultdict(str)
+movie_names = defaultdict(str)
 movie_reviews = defaultdict(str)
+movie_description = defaultdict(str)
+movie_code_names = defaultdict(str)
 
 with open('books_description.csv', 'r') as csvfile:
     csvreader = csv.DictReader(csvfile)
@@ -40,32 +42,23 @@ with open('movie_codes.csv', 'r') as csvfile:
     for row in csvreader:
         movie_code= row['movie_code']
         movie_name = row['movie_name']
-        movie_code_names[movie_code] = movie_name
+        movie_names[movie_code] = movie_name
+        movie_code_names[movie_name] = movie_code
 with open('movie_reviews.csv', 'r') as csvfile:
     csvreader = csv.DictReader(csvfile)
     for row in csvreader:
         movie_code= row['movie_code']
         rev = row['review']
         movie_reviews[movie_code] = rev
+with open('movie_description.csv', 'r') as csvfile:
+    csvreader = csv.DictReader(csvfile)
+    for row in csvreader:
+        movie_code= row['movie_code']
+        desc = row['description']
+        movie_description[movie_code] = desc
 
-movie_list = list(movie_code_names.values())
+movie_list = list(movie_names.values())
 
-def logic(book_description, movie_code_names, movie_reviews):
-    texts = list(movie_reviews.values()) + list(book_description.values())
-    books_rev_ind = {}
-
-    vectorizer = TfidfVectorizer(max_features=500)
-
-    tfidf_vectors = vectorizer.fit_transform(texts)
-    book_starting_index = len(movie_reviews.values())
-    movie_starting_index = 0
-    for i, book in enumerate(book_description.keys()):
-        books_rev_ind[i + book_starting_index] = book
-
-    similarity_matrix = cosine_similarity(tfidf_vectors)
-    return similarity_matrix, books_rev_ind, book_starting_index
-
-similarity_matrix, books_rev_ind, book_starting_index = logic(book_description, movie_code_names, movie_reviews)
 
 def jaccard(movie, query):
     query = query.lower()
@@ -78,38 +71,39 @@ def jaccard(movie, query):
     jaccard_similarity = len(set1.intersection(set2)) / len(set1.union(set2))
     return jaccard_similarity
 
-def find_similar_books(movie_name, similarity_matrix, movie_code_names, book_description, books_rev_ind, book_starting_index, num_books=10):
-    
-    try:
-        movie_index = list(movie_code_names.values()).index(movie_name)
-    except ValueError:
-        print(f"Movie '{movie_name}' not found.")
-        return
 
-    # Get the similarity scores for this movie
-    movie_scores = similarity_matrix[movie_index][book_starting_index:]
-
-    # Find the indices of the top-n most similar movies
-    book_indices = np.argsort(movie_scores)[-num_books-1:-1][::-1]
-    if len(book_indices) == 0:
-        print("No similar books found.")
+def cosine_sim(movie_title, book_description, movie_reviews, movie_description):
+    movie_code = None
+    for name, code in movie_code_names.items():
+        if movie_title.lower() == name.lower():
+            movie_code = code
+            break
+    if movie_code is None:
+        print(f"No movie found with title '{movie_title}'")
         return
+    movie_desc = movie_description[movie_code]
+    book_desc = list(book_description.values())
+    mov_revs = movie_reviews[movie_code]
+
+    vectorizer = TfidfVectorizer(max_features= 5000, stop_words='english')
+    book_vectors = vectorizer.fit_transform(book_desc)
+    movie_vector = vectorizer.transform([movie_desc])
+    movie_rev_vector = vectorizer.transform([mov_revs])
+
+    similarity_scores = cosine_similarity(movie_vector, book_vectors)
+    similarity_scores_sec = cosine_similarity(movie_rev_vector, book_vectors)
+
+    alpha, beta = 0.5, 0.5
+    combined = alpha * similarity_scores + beta * similarity_scores_sec
+
+    top_indices = combined.argsort()[0][-10:][::-1]
+    top_books = [list(book_description.keys())[i] for i in top_indices]
 
     out = []
-
-    # Print out the names of the top-n most similar movies
-    # print(f"Books similar to '{movie_name}':")
-    for book_index in book_indices:
-        book_index += book_starting_index
-        if book_index in books_rev_ind:
-            book_name = books_rev_ind[book_index]
-            out.append(book_name)
-            # out[book_name] = book_description[book_name]
-            # print(f"  - {book_name}")
-        else:
-            continue
+    for i, book in enumerate(top_books):
+        out.append(book)
     return out
-
+    
 
 
 
@@ -135,10 +129,10 @@ def movie_search():
 
 @app.route("/movies")
 def episodes_search():
-    movies = request.args.get("movies")
+    movie = request.args.get("movie")
+    print(movie)
     # similarity_matrix, books_rev_ind, book_starting_index = logic(book_description, movie_code_names, movie_reviews)
-    data = find_similar_books(movies, similarity_matrix, movie_code_names, book_description, books_rev_ind, book_starting_index, num_books=10)
-    # return json.dumps([dict(zip(keys, i)) for i in data])
+    data = cosine_sim(movie, book_description, movie_reviews, movie_description)
     print(data)
     return json.dumps(data)
 

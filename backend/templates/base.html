@@ -106,7 +106,6 @@
             fetch("/movies?" + new URLSearchParams({ movie: String(clickedMovie.textContent) }))
                 .then((response) => response.json())
                 .then((data) => {
-                    document.getElementById("answer-box").empty();
                     data.forEach((item) => {
                         let tempDiv = document.createElement("div");
                         tempDiv.textContent = item; // Set the text content of the div to the item from the response
