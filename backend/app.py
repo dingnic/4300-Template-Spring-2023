@@ -31,26 +31,26 @@ movie_reviews = defaultdict(str)
 movie_description = defaultdict(str)
 movie_code_names = defaultdict(str)
 
-with open('books_description.csv', 'r') as csvfile:
+with open('data/books_description.csv', 'r') as csvfile:
     csvreader = csv.DictReader(csvfile)
     for row in csvreader:
         book = row['book_title']
         desc = row['description']
         book_description[book] = desc
-with open('movie_codes.csv', 'r') as csvfile:
+with open('data/movie_codes.csv', 'r') as csvfile:
     csvreader = csv.DictReader(csvfile)
     for row in csvreader:
         movie_code= row['movie_code']
         movie_name = row['movie_name']
         movie_names[movie_code] = movie_name
         movie_code_names[movie_name] = movie_code
-with open('movie_reviews.csv', 'r') as csvfile:
+with open('data/movie_reviews.csv', 'r') as csvfile:
     csvreader = csv.DictReader(csvfile)
     for row in csvreader:
         movie_code= row['movie_code']
         rev = row['review']
         movie_reviews[movie_code] = rev
-with open('movie_description.csv', 'r') as csvfile:
+with open('data/movie_description.csv', 'r') as csvfile:
     csvreader = csv.DictReader(csvfile)
     for row in csvreader:
         movie_code= row['movie_code']
@@ -68,6 +68,8 @@ def jaccard(movie, query):
     set1 = set(string1)
     set2 = set(string2)
 
+    if(movie in query):
+        return 1
     jaccard_similarity = len(set1.intersection(set2)) / len(set1.union(set2))
     return jaccard_similarity
 
