@@ -18,6 +18,7 @@ tb = "python pip install textblob"
 os.system(pand)
 os.system(skl)
 os.system(nump)
+os.system(tb)
 
 
 os.environ['ROOT_PATH'] = os.path.abspath(os.path.join("..", os.curdir))
