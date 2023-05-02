@@ -1,5 +1,4 @@
 .full-body-container {
-    position: absolute;
     right: 0;
     bottom: 0;
     width: 100%;
@@ -8,11 +7,11 @@
     justify-content: start;
     align-items: center;
     flex-direction: column;
-    position: absolute;
-    background: url(book-wallpaper.jpeg);
+    background-color: #ccc;
     background-attachment: scroll;
-    background-size: cover;
     background-repeat: repeat;
+    background-size: contain;
+    background-position: cover;
 }
 
 .film {
@@ -25,28 +24,6 @@
 
 .clicked {
     color: green;
-}
-
-#title-logo {
-    color: #274e13;
-    font-family: 'Amiri';
-    font-style: normal;
-    font-weight: 700;
-    font-size: 64px;
-    line-height: 113px;
-    text-align: center;
-}
-
-#slogan {
-
-    font-family: 'Amiri';
-    font-style: normal;
-    font-weight: 700;
-    font-size: 28px;
-    line-height: 56px;
-    text-align: center;
-
-    color: #010101;
 }
 
 .hidden {
@@ -78,7 +55,6 @@
     position: relative;
     display: flex;
     align-items: center;
-    margin-top: 20px;
     padding: 20px;
     width: 500px;
     height: 80px;

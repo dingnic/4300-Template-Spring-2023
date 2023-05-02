@@ -135,10 +135,9 @@ def movie_search():
 
 @app.route("/movies")
 def episodes_search():
-    movie = request.args.get("movie")
-    print(movie)
+    movies = request.args.get("movies")
     # similarity_matrix, books_rev_ind, book_starting_index = logic(book_description, movie_code_names, movie_reviews)
-    data = find_similar_books(movie, similarity_matrix, movie_code_names, book_description, books_rev_ind, book_starting_index, num_books=10)
+    data = find_similar_books(movies, similarity_matrix, movie_code_names, book_description, books_rev_ind, book_starting_index, num_books=10)
     # return json.dumps([dict(zip(keys, i)) for i in data])
     print(data)
     return json.dumps(data)
