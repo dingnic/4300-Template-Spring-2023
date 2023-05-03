@@ -1,6 +1,7 @@
+
 import os
 
-"""
+
 pand = "python -m pip install pandas"
 skl = "python -m pip install scikit-learn"
 nump = "python pip install numpy"
@@ -11,6 +12,8 @@ os.system(skl)
 os.system(nump)
 os.system(tb)
 os.system(mlib)
+
+
 from textblob import TextBlob
 import numpy as np
 from sklearn.metrics.pairwise import cosine_similarity
