@@ -15,14 +15,14 @@ import matplotlib.pyplot as plt
 import io
 from flask import Response
 
-# pand = "python -m pip install pandas"
-# skl = "python -m pip install scikit-learn"
-# nump = "python pip install numpy"
-# tb = "python pip install textblob"
-# os.system(pand)
-# os.system(skl)
-# os.system(nump)
-# os.system(tb)
+pand = "python -m pip install pandas"
+skl = "python -m pip install scikit-learn"
+nump = "python pip install numpy"
+tb = "python -m pip install textblob"
+os.system(pand)
+os.system(skl)
+os.system(nump)
+os.system(tb)
 
 
 os.environ['ROOT_PATH'] = os.path.abspath(os.path.join("..", os.curdir))
