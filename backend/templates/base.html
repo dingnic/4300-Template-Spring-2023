@@ -137,15 +137,15 @@
 
 
                         // add the text that only appears when the background image appears
-                        const bgText = document.createElement("div");
-                        bgText.textContent = "LitCinema";
-                        bgText.classList.add("bg-text");
-                        document.getElementById("answer-box").appendChild(bgText);
-                        bgText.style.fontSize = "30px";
-                        bgText.style.marginTop = "35px"
-                        bgText.style.marginBottom = "20px";
-                        bgText.style.fontWeight = "bold";
-                        bgText.style.fontFamily = "Arial";
+                        const answerTitle = document.createElement("div");
+                        answerTitle.textContent = `${clickedMovie.textContent} Recommendations`;
+                        answerTitle.classList.add("bg-text");
+                        document.getElementById("answer-box").appendChild(answerTitle);
+                        answerTitle.style.fontSize = "30px";
+                        answerTitle.style.marginTop = "35px"
+                        answerTitle.style.marginBottom = "20px";
+                        answerTitle.style.fontWeight = "bold";
+                        answerTitle.style.fontFamily = "Arial";
 
                         if (data.length === 0) {
                             // create a new div element with the text "No recommendations found"
@@ -209,6 +209,16 @@
                             bottomText.style.marginBottom = "20px";
                             bottomText.style.fontWeight = "bold";
                             bottomText.style.fontFamily = "Arial";
+
+                            const bottomLogo = document.createElement("div");
+                            bottomLogo.textContent = "LitCinema";
+                            bottomLogo.classList.add("bottom-logo");
+                            bottomLogo.style.fontSize = "10px";
+                            bottomLogo.style.marginBottom = "20px";
+                            bottomLogo.style.fontWeight = "bold";
+                            bottomLogo.style.fontFamily = "Arial";
+                            document.getElementById("answer-box").appendChild(bottomLogo);
+
                             // add the class to the answer box to show the background image
                             document.getElementById("answer-box").classList.add("answer-box-image");
                         }
