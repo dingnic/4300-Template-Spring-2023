@@ -1,3 +1,6 @@
+from flask import Response
+import io
+import matplotlib.pyplot as plt
 import os
 
 # pand = "python -m pip install pandas"
@@ -22,9 +25,6 @@ from flask_cors import CORS
 from collections import defaultdict
 import matplotlib
 matplotlib.use('agg')
-import matplotlib.pyplot as plt
-import io
-from flask import Response
 
 
 os.environ['ROOT_PATH'] = os.path.abspath(os.path.join("..", os.curdir))
@@ -155,17 +155,16 @@ def cosine_sim_w_sent(movie_title, book_description, movie_reviews, movie_descri
     top_indices = combined_sent.argsort()[0][-10:][::-1]
     top_books = [list(book_description.keys())[i] for i in top_indices]
 
-
-
-
     # Top 5 features between mov descript and book descript
     feature_names = vectorizer.get_feature_names()
     movie_feature_scores = list(zip(feature_names, movie_vector.toarray()[0]))
-    top_features = sorted(movie_feature_scores, key=lambda x: x[1], reverse=True)[:5]
+    top_features = sorted(movie_feature_scores,
+                          key=lambda x: x[1], reverse=True)[:5]
     # Top 5 features between mov rev and book descp
-    movie_feature_scores_sec = list(zip(feature_names, movie_rev_vector.toarray()[0]))
-    top_features_new = sorted(movie_feature_scores_sec, key=lambda x: x[1], reverse=True)[:5]
-
+    movie_feature_scores_sec = list(
+        zip(feature_names, movie_rev_vector.toarray()[0]))
+    top_features_new = sorted(movie_feature_scores_sec,
+                              key=lambda x: x[1], reverse=True)[:5]
 
     # combine features
     features = top_features + top_features_new
@@ -176,14 +175,13 @@ def cosine_sim_w_sent(movie_title, book_description, movie_reviews, movie_descri
     for book in top_books:
         description = book_description[book]
         book_vector = vectorizer.transform([description])
-        book_scores[book] = [book_vector.toarray()[0][vectorizer.vocabulary_[feat]] for feat, score in features]
-
+        book_scores[book] = [book_vector.toarray()[0][vectorizer.vocabulary_[feat]]
+                             for feat, score in features]
 
     plot(book_scores, movie_title, features)
     # # plot movie description and review vector scores
     # ax.plot(features, movie_desc_vector.toarray()[0][vectorizer.vocabulary_[feat]] for feat in movie_desc_features)
     # ax.plot(features, movie_review_vector.toarray()[0][vectorizer.vocabulary_[feat]] for feat in movie_review_features)
-
 
     out = []
     for i, book in enumerate(top_books):
@@ -195,9 +193,15 @@ def cosine_sim_w_sent(movie_title, book_description, movie_reviews, movie_descri
 def home():
     return render_template('base.html', title="sample html")
 
+
 @app.route('/plot')
+<<<<<<< HEAD
 def plot(book_scores, movie_title, top_features):
     fig, ax = plt.subplots(figsize=(5,5)) # Adjust the size of the figure
+=======
+def plot(book_scores, movie_title):
+    fig, ax = plt.subplots(figsize=(5, 5))  # Adjust the size of the figure
+>>>>>>> c7f4e9a6a2e6784beade244aea30018f97f01780
     for book, scores in book_scores.items():
         ax.plot(scores, label=book)
 
@@ -212,10 +216,20 @@ def plot(book_scores, movie_title, top_features):
     ax.set_xlabel('Features')
     ax.set_ylabel('TF-IDF Score')
     ax.set_title(f'TF-IDF Scores for {movie_title} and related books')
+<<<<<<< HEAD
     
     ax.legend(fontsize=10, loc='upper left', bbox_to_anchor=(1, 1))
     
     buffer = io.BytesIO()
+=======
+
+    # Adjust the font size of the legend
+    ax.legend(fontsize=10, loc='upper left', bbox_to_anchor=(1, 1))
+
+    # Save the plot to a memory buffer
+    buffer = io.BytesIO()
+    # Use bbox_inches='tight' to avoid cutting off the legend
+>>>>>>> c7f4e9a6a2e6784beade244aea30018f97f01780
     plt.savefig(buffer, format='png', bbox_inches='tight')
     buffer.seek(0)
 
@@ -224,7 +238,6 @@ def plot(book_scores, movie_title, top_features):
         f.write(buffer.getvalue())
 
     return Response(buffer.getvalue(), mimetype='image/png')
-
 
 
 @ app.route("/movie-search")
