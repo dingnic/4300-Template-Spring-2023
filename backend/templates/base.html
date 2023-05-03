@@ -14,109 +14,177 @@
             </div>
             <div class="input-box" onclick="sendFocus()">
                 <img src="{{ url_for('static', filename='images/search.png') }}" />
-                <input placeholder="Type in your favorite movie!" id="filter-text-val" onkeyup="findMovie()">
+                <input placeholder="Type in your favorite movie!" id="filter-text-val" onkeyup="delayedFindMovie()">
                 <button type="rec-books" onclick="generateRec(findMovie())">Generate!</button>
             </div>
-
         </div>
         <div id="answer-box">
-
         </div>
-    </div>
-    <button id="help">?</button>
-    <div id="help-panel">
-        TEMP
-    </div>
+        <div>
+            <button id="help">?</button>
+            <div id="help-panel">
+                TEMP
+            </div>
+        </div>
+        <div id="text-above-button">Click here for more data insights</div>
 
-    <script>
-        const helpButton = document.getElementById("help");
-        const helpPanel = document.getElementById("help-panel");
-        const overlay = document.querySelector('.overlay');
+        <script>
+            var timeout;
+            function delayedFindMovie() {
+                clearTimeout(timeout);
+                timeout = setTimeout(findMovie, 500); // Delayed by 500ms
+            }
+        </script>
 
-        helpButton.addEventListener("click", function () {
-            helpPanel.classList.toggle("active");
-            // helpPanel.style.display = helpPanel.style.display === "none" ? "block" : "none";
-            overlay.classList.toggle('active');
-        });
+        <script>
+            const helpButton = document.getElementById("help");
+            const helpPanel = document.getElementById("help-panel");
+            const overlay = document.querySelector('.overlay');
 
-        function answerBoxTemplate(title, titleDesc) {
-            return `<div class=''>
+            helpButton.addEventListener("click", function () {
+                helpPanel.classList.toggle("active");
+                // helpPanel.style.display = helpPanel.style.display === "none" ? "block" : "none";
+                overlay.classList.toggle('active');
+            });
+
+            function answerBoxTemplate(title, titleDesc) {
+                return `<div class=''>
                 <h3 class='episode-title'>${title}</h3>
                 <p class='episode-desc'>${titleDesc}</p>
             </div>`
-        }
+            }
 
-        function sendFocus() {
-            document.getElementById('filter-text-val').focus()
-        }
+            function sendFocus() {
+                document.getElementById('filter-text-val').focus()
+            }
 
-        function filterText() {
-            document.getElementById("answer-box").innerHTML = "";
-            console.log(document.getElementById("filter-text-val").value);
-            fetch("/movies?" + new URLSearchParams({ title: document.getElementById("filter-text-val").value }).toString())
-                .then((response) => response.json())
-                .then((data) => {
-                    data.forEach((item) => {
-                        let tempDiv = document.createElement("div");
-                        tempDiv.textContent = item; // Set the text content of the div to the item from the response
-                        document.getElementById("answer-box").appendChild(tempDiv);
-                    });
-                })
-                .catch((error) => {
-                    console.error("Error fetching movies:", error);
-                });
-        }
-        clickedMovie = null
-        function findMovie() {
-            document.getElementById("answer-box").innerHTML = "";
-            console.log(document.getElementById("filter-text-val").value);
-            fetch("/movie-search?" + new URLSearchParams({ title: document.getElementById("filter-text-val").value }).toString())
-                .then((response) => response.json())
-                .then((data) => {
-                    data.forEach((item) => {
-                        if (item != "") {
+            function filterText() {
+                document.getElementById("answer-box").innerHTML = "";
+                console.log(document.getElementById("filter-text-val").value);
+                fetch("/movies?" + new URLSearchParams({ title: document.getElementById("filter-text-val").value }).toString())
+                    .then((response) => response.json())
+                    .then((data) => {
+                        data.forEach((item) => {
                             let tempDiv = document.createElement("div");
-                            tempDiv.classList.add("film");
-                            tempDiv.textContent = String(item);
-                            tempDiv.addEventListener("click", () => {
-                                if (clickedMovie === null) {
-                                    clickedMovie = tempDiv;
-                                    tempDiv.classList.add("clicked");
-                                } else if (clickedMovie === tempDiv) {
-                                    clickedMovie = null;
-                                    tempDiv.classList.remove("clicked");
-                                }
-                                else {
-                                    clickedMovie.classList.remove("clicked");
-                                    clickedMovie = tempDiv;
-                                    tempDiv.classList.add("clicked");
-                                }
-                            });
+                            tempDiv.textContent = item; // Set the text content of the div to the item from the response
                             document.getElementById("answer-box").appendChild(tempDiv);
+                        });
+
+                    })
+                    .catch((error) => {
+                        console.error("Error fetching movies:", error);
+                    });
+            }
+            clickedMovie = null
+            function findMovie() {
+                const inputVal = document.getElementById("filter-text-val").value;
+                if (inputVal === "") {
+                    // Clear previous search results
+                    document.getElementById("answer-box").innerHTML = "";
+                    document.getElementById("answer-box").classList.remove("answer-box-image");
+                    return;
+                }
+                document.getElementById("answer-box").innerHTML = "";
+                document.getElementById("answer-box").classList.remove("answer-box-image");
+                console.log(document.getElementById("filter-text-val").value);
+                fetch("/movie-search?" + new URLSearchParams({ title: document.getElementById("filter-text-val").value }).toString())
+                    .then((response) => response.json())
+                    .then((data) => {
+                        data.forEach((item) => {
+                            if (item != "") {
+                                let tempDiv = document.createElement("div");
+                                tempDiv.classList.add("film");
+                                tempDiv.textContent = String(item);
+                                tempDiv.addEventListener("click", () => {
+                                    if (clickedMovie === null) {
+                                        clickedMovie = tempDiv;
+                                        tempDiv.classList.add("clicked");
+                                    } else if (clickedMovie === tempDiv) {
+                                        clickedMovie = null;
+                                        tempDiv.classList.remove("clicked");
+                                    }
+                                    else {
+                                        clickedMovie.classList.remove("clicked");
+                                        clickedMovie = tempDiv;
+                                        tempDiv.classList.add("clicked");
+                                    }
+                                });
+                                document.getElementById("answer-box").appendChild(tempDiv);
+                            }
+                        });
+
+                    })
+                    .catch((error) => {
+                        console.error("Error fetching movies:", error);
+                    });
+
+            }
+
+            function generateRec() {
+                console.log("Clicked books:", clickedMovie);
+                fetch("/movies?" + new URLSearchParams({ movie: String(clickedMovie.textContent) }))
+                    .then((response) => response.json())
+                    .then((data) => {
+                        // clear the answer box
+                        document.getElementById("answer-box").innerHTML = '';
+
+
+                        // add the text that only appears when the background image appears
+                        const bgText = document.createElement("div");
+                        bgText.textContent = "LitCinema";
+                        bgText.classList.add("bg-text");
+                        document.getElementById("answer-box").appendChild(bgText);
+                        bgText.style.fontSize = "30px";
+                        bgText.style.marginTop = "35px"
+                        bgText.style.marginBottom = "20px";
+                        bgText.style.fontWeight = "bold";
+                        bgText.style.fontFamily = "Arial";
+
+                        if (data.length === 0) {
+                            // create a new div element with the text "No recommendations found"
+                            const noRecsDiv = document.createElement("div");
+                            noRecsDiv.textContent = "No recommendations found";
+                            document.getElementById("answer-box").appendChild(noRecsDiv);
+                        } else {
+                            // create a new div element for each recommendation
+                            data.forEach((item) => {
+                                let tempDiv = document.createElement("div");
+                                tempDiv.style.marginBottom = "10px";
+                                tempDiv.style.fontSize = "17px";
+                                tempDiv.style.textAlign = "left";
+                                tempDiv.style.paddingLeft = "20px";
+                                tempDiv.style.paddingRight = "20px";
+                                tempDiv.textContent = item; // Set the text content of the div to the item from the response
+                                document.getElementById("answer-box").appendChild(tempDiv);
+                            });
+
+                            const bottomText = document.createElement("div");
+                            bottomText.textContent = "Enjoy your book recommendations!";
+                            bottomText.classList.add("bottom-text");
+
+                            const barcode = document.createElement("img");
+                            barcode.src = "static/images/barcode.png";
+                            barcode.classList.add("image-class");
+                            document.getElementById("answer-box").appendChild(barcode);
+
+
+                            document.getElementById("answer-box").appendChild(bottomText);
+                            bottomText.style.fontSize = "20px";
+                            bottomText.style.marginTop = "20px"
+                            bottomText.style.marginBottom = "20px";
+                            bottomText.style.fontWeight = "bold";
+                            bottomText.style.fontFamily = "Arial";
+                            // add the class to the answer box to show the background image
+                            document.getElementById("answer-box").classList.add("answer-box-image");
                         }
+                        answerBox.style.height = `${document.getElementById("answer-box").scrollHeight}px`;
+                    })
+
+                    .catch((error) => {
+                        console.error("Error fetching movies:", error);
                     });
-
-                })
-                .catch((error) => {
-                    console.error("Error fetching movies:", error);
-                });
-        }
-        function generateRec() {
-            console.log("Clicked books:", clickedMovie);
-            fetch("/movies?" + new URLSearchParams({ movie: String(clickedMovie.textContent) }))
-                .then((response) => response.json())
-                .then((data) => {
-                    data.forEach((item) => {
-                        let tempDiv = document.createElement("div");
-                        tempDiv.textContent = item; // Set the text content of the div to the item from the response
-                        document.getElementById("answer-box").appendChild(tempDiv);
-                    });
-                })
-                .catch((error) => {
-                    console.error("Error fetching movies:", error);
-                });
-        }
+            }
 
 
-    </script>
+        </script>
 </body>

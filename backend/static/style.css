@@ -82,11 +82,55 @@
     border-radius: 10px;
 }
 
-#answer-box {
-    width: 700px;
-    height: 400px;
-    margin-top: 50px;
+.bg-text:after {
+    content: "";
+    display: flex;
+    height: 1px;
+    justify-content: center;
+    margin: auto;
+    width: 90%;
+    margin-top: 20px;
+    border-bottom: 1px dashed black;
 }
+
+.input-box button[type="rec-books"] {
+    background-color: #4CAF50;
+    /* Set a background color */
+    color: white;
+    /* Set a text color */
+    border: none;
+    /* Remove borders */
+    padding: 10px 20px;
+    /* Set padding */
+    font-size: 16px;
+    /* Set font size */
+    cursor: pointer;
+    /* Change cursor on hover */
+}
+
+/* On hover */
+.input-box button[type="rec-books"]:hover {
+    background-color: #3e8e41;
+}
+
+#answer-box {
+    width: 400px;
+    min-height: 400px;
+    margin-top: 30px;
+    text-align: center;
+    font-family: 'Courier New', Courier, monospace;
+    margin-bottom: 250px;
+}
+
+.answer-box-image {
+    background-image: url(images/wrinkled-paper-texture-7.jpg);
+    background-repeat: no-repeat;
+    background-size: cover;
+}
+
+/* #answer-box.has-results {
+    background-image: url(images/wrinkled-paper-texture-7.jpg);
+    /* add other background styles */
 
 .episode-title {
     font-family: 'Kanit', sans-serif;
@@ -116,10 +160,17 @@
     left: 0;
 }
 
+#text-above-button {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif
+}
+
 #help {
     border-radius: 25px;
     position: fixed;
-    bottom: 20px;
+    bottom: 40px;
     right: 20px;
     width: 50px;
     height: 50px;
