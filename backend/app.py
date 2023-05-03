@@ -1,16 +1,16 @@
 
 import os
 
-# pand = "python -m pip install pandas"
-# skl = "python -m pip install scikit-learn"
-# nump = "python pip install numpy"
-# tb = "python -m pip install textblob"
-# mlib = "python -m pip install matplotlib"
-# os.system(pand)
-# os.system(skl)
-# os.system(nump)
-# os.system(tb)
-# os.system(mlib)
+pand = "python -m pip install pandas"
+skl = "python -m pip install scikit-learn"
+nump = "python pip install numpy"
+tb = "python -m pip install textblob"
+mlib = "python -m pip install matplotlib"
+os.system(pand)
+os.system(skl)
+os.system(nump)
+os.system(tb)
+os.system(mlib)
 
 import matplotlib
 from collections import defaultdict
@@ -28,7 +28,6 @@ import io
 import matplotlib.pyplot as plt
 
 matplotlib.use('agg')
-
 
 
 os.environ['ROOT_PATH'] = os.path.abspath(os.path.join("..", os.curdir))
@@ -159,9 +158,12 @@ def cosine_sim_w_sent(movie_title, book_description, movie_reviews, movie_descri
     top_indices = combined_sent.argsort()[0][-10:][::-1]
     top_books = [list(book_description.keys())[i] for i in top_indices]
     top_scores = {}
+    dd = {}
+    rd = {}
     for i, index in enumerate(top_indices):
         top_scores[top_books[i]] = combined_sent[0][index]
-    print(top_scores)
+        dd[top_books[i]] = similarity_scores[0][index]
+        rd[top_books[i]] = similarity_scores_sec[0][index]
 
     # Top 5 features between mov descript and book descript
     feature_names = vectorizer.get_feature_names()
@@ -186,7 +188,8 @@ def cosine_sim_w_sent(movie_title, book_description, movie_reviews, movie_descri
         book_scores[book] = [book_vector.toarray()[0][vectorizer.vocabulary_[feat]]
                              for feat, score in features]
 
-    plot(book_scores, movie_title, features, top_scores)
+    plot(book_scores, movie_title, features,
+         top_scores, dd, rd, book_review_sents)
     # # plot movie description and review vector scores
     # ax.plot(features, movie_desc_vector.toarray()[0][vectorizer.vocabulary_[feat]] for feat in movie_desc_features)
     # ax.plot(features, movie_review_vector.toarray()[0][vectorizer.vocabulary_[feat]] for feat in movie_review_features)
@@ -197,29 +200,41 @@ def cosine_sim_w_sent(movie_title, book_description, movie_reviews, movie_descri
     return out
 
 
+def get_sent(num):
+    num = num[0]
+    if num == 1.2:
+        return "+"
+    if num == 1.0:
+        return "0"
+    if num == 0.8:
+        return "-"
+    else:
+        return "0"
+
+
 @ app.route("/")
 def home():
     return render_template('base.html', title="sample html")
 
 
 @app.route('/plot')
-def plot(book_scores, movie_title, top_features, top_scores):
+def plot(book_scores, movie_title, top_features, top_scores, dd, rd, book_review_sents):
     fig, ax = plt.subplots(figsize=(5, 5))  # Adjust the size of the figure
     fig.patch.set_facecolor('#808080')
     max_len = 0
     for i, tup in enumerate(list(book_scores.items())):
         book, scores = tup
         max_len = max(max_len, len(book))
-
-    if max_len > 50:
-        max_len = 53
+    bound = 50
+    if max_len > bound:
+        max_len = bound + 3
     for i, tup in enumerate(list(book_scores.items())):
         book, scores = tup
         new_book = book
-        if len(book) > 50:
-            new_book = book[:51] + "..."
+        if len(book) > 49:
+            new_book = book[:50] + "..."
         line = ax.plot(
-            scores, label=f"{new_book}" + " " * (max_len - len(new_book) + 5) + f"Similarity Score: {round(top_scores[book], 4)}")
+            scores, label=f"{new_book}" + " " * (max_len - len(new_book) + 2) + f"sim: {top_scores[book]:.3f}  d-d: {dd[book]:.3f}  d-r: {rd[book]:.3f}  sent: {get_sent(book_review_sents.get(book, [1]))}")
 
     features = [feat for feat, val in top_features]
     feature_vals = [val for feat, val in top_features]
