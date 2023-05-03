@@ -1,15 +1,15 @@
 import os
 
-pand = "python -m pip install pandas"
-skl = "python -m pip install scikit-learn"
-nump = "python pip install numpy"
-tb = "python -m pip install textblob"
-mlib = "python -m pip install matplotlib"
-os.system(pand)
-os.system(skl)
-os.system(nump)
-os.system(tb)
-os.system(mlib)
+# pand = "python -m pip install pandas"
+# skl = "python -m pip install scikit-learn"
+# nump = "python pip install numpy"
+# tb = "python -m pip install textblob"
+# mlib = "python -m pip install matplotlib"
+# os.system(pand)
+# os.system(skl)
+# os.system(nump)
+# os.system(tb)
+# os.system(mlib)
 from textblob import TextBlob
 import numpy as np
 from sklearn.metrics.pairwise import cosine_similarity
@@ -179,7 +179,7 @@ def cosine_sim_w_sent(movie_title, book_description, movie_reviews, movie_descri
         book_scores[book] = [book_vector.toarray()[0][vectorizer.vocabulary_[feat]] for feat, score in features]
 
 
-    plot(book_scores, movie_title)
+    plot(book_scores, movie_title, features)
     # # plot movie description and review vector scores
     # ax.plot(features, movie_desc_vector.toarray()[0][vectorizer.vocabulary_[feat]] for feat in movie_desc_features)
     # ax.plot(features, movie_review_vector.toarray()[0][vectorizer.vocabulary_[feat]] for feat in movie_review_features)
@@ -196,28 +196,33 @@ def home():
     return render_template('base.html', title="sample html")
 
 @app.route('/plot')
-def plot(book_scores, movie_title):
+def plot(book_scores, movie_title, top_features):
     fig, ax = plt.subplots(figsize=(5,5)) # Adjust the size of the figure
     for book, scores in book_scores.items():
         ax.plot(scores, label=book)
+
+    features = [feat for feat, val in top_features]
+    feature_vals = [val for feat, val in top_features]
+    ax.set_xticks(range(len(features)))
+    ax.set_xticklabels(features, rotation=90)
+    
+    #plot movie
+    ax.plot(feature_vals, label=movie_title)
 
     ax.set_xlabel('Features')
     ax.set_ylabel('TF-IDF Score')
     ax.set_title(f'TF-IDF Scores for {movie_title} and related books')
     
-    # Adjust the font size of the legend
     ax.legend(fontsize=10, loc='upper left', bbox_to_anchor=(1, 1))
     
-    # Save the plot to a memory buffer
     buffer = io.BytesIO()
-    plt.savefig(buffer, format='png', bbox_inches='tight') # Use bbox_inches='tight' to avoid cutting off the legend
+    plt.savefig(buffer, format='png', bbox_inches='tight')
     buffer.seek(0)
 
     filepath = os.path.join('static', 'images', 'plot.png')
     with open(filepath, 'wb') as f:
         f.write(buffer.getvalue())
 
-    # Send the image as a response
     return Response(buffer.getvalue(), mimetype='image/png')
 
 
@@ -247,7 +252,6 @@ def episodes_search():
     # print("The code is: ", movie_name_codes[movie])
     data = cosine_sim_w_sent(movie, book_description,
                              movie_reviews, movie_description, book_review_sents)
-    print(data)
     return json.dumps(data)
 
 
