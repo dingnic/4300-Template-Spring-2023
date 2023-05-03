@@ -9,7 +9,7 @@
 <body>
     <div class="full-body-container">
         <div class="top-text">
-            <div>
+            <div class="logo-image">
                 <img src="{{ url_for('static', filename='images/litcinema-logo-medium.png') }}" />
             </div>
             <div class="input-box" onclick="sendFocus()">
@@ -21,9 +21,8 @@
         <div id="answer-box">
         </div>
         <div>
-            <button id="help">?</button>
+            <button id="help" onclick="updateImg()">?</button>
             <div id="help-panel">
-                TEMP
             </div>
         </div>
         <div id="text-above-button">Click here for more data insights</div>
@@ -119,6 +118,14 @@
                     });
 
             }
+            function updateImg() {
+                let plotImg = document.createElement("img");
+                plotImg.src = "{{ url_for('static', filename='../static/images/plot.png') }}";
+                plotImg.alt = "Plot";
+                let helpPanel = document.getElementById("help-panel");
+                helpPanel.innerHTML = ""; // Remove any existing image from the help panel
+                helpPanel.appendChild(plotImg);
+            }
 
             function generateRec() {
                 console.log("Clicked books:", clickedMovie);
@@ -146,17 +153,44 @@
                             noRecsDiv.textContent = "No recommendations found";
                             document.getElementById("answer-box").appendChild(noRecsDiv);
                         } else {
+
                             // create a new div element for each recommendation
-                            data.forEach((item) => {
+                            data.forEach((item, index) => {
                                 let tempDiv = document.createElement("div");
+                                tempDiv.style.display = "grid";
+                                tempDiv.style.gridTemplateColumns = "40px 1fr";
+                                tempDiv.style.gridGap = "10px";
                                 tempDiv.style.marginBottom = "10px";
                                 tempDiv.style.fontSize = "17px";
+                                tempDiv.style.fontWeight = "540";
                                 tempDiv.style.textAlign = "left";
                                 tempDiv.style.paddingLeft = "20px";
                                 tempDiv.style.paddingRight = "20px";
-                                tempDiv.textContent = item; // Set the text content of the div to the item from the response
+                                let indexWithLeadingZero = (index + 1).toString().padStart(2, "0");
+                                tempDiv.innerHTML = `<span>${indexWithLeadingZero}.</span><span style="text-align: right">${item}</span>`;
                                 document.getElementById("answer-box").appendChild(tempDiv);
                             });
+
+                            const dashedLine = document.createElement("div");
+                            dashedLine.classList.add("dashed-line");
+                            document.getElementById("answer-box").appendChild(dashedLine);
+
+
+                            const qtyText = document.createElement("div");
+                            qtyText.textContent = "Qty: 10";
+                            qtyText.classList.add("qty-text");
+                            document.getElementById("answer-box").appendChild(qtyText);
+                            qtyText.style.paddingLeft = "20px";
+                            qtyText.style.textAlign = "left";
+                            qtyText.style.fontFamily = "Courier New";
+                            qtyText.style.marginTop = "10px";
+                            qtyText.style.marginBottom = "10px";
+                            qtyText.style.fontSize = "17px";
+
+                            const dashedLineEnd = document.createElement("div");
+                            dashedLineEnd.classList.add("dashed-line");
+                            document.getElementById("answer-box").appendChild(dashedLineEnd);
+
 
                             const bottomText = document.createElement("div");
                             bottomText.textContent = "Enjoy your book recommendations!";
@@ -165,10 +199,11 @@
                             const barcode = document.createElement("img");
                             barcode.src = "static/images/barcode.png";
                             barcode.classList.add("image-class");
+                            document.getElementById("answer-box").appendChild(bottomText);
                             document.getElementById("answer-box").appendChild(barcode);
 
+                            barcode.style.marginBottom = "20px";
 
-                            document.getElementById("answer-box").appendChild(bottomText);
                             bottomText.style.fontSize = "20px";
                             bottomText.style.marginTop = "20px"
                             bottomText.style.marginBottom = "20px";
