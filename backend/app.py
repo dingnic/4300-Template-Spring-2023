@@ -154,6 +154,10 @@ def cosine_sim_w_sent(movie_title, book_description, movie_reviews, movie_descri
 
     top_indices = combined_sent.argsort()[0][-10:][::-1]
     top_books = [list(book_description.keys())[i] for i in top_indices]
+    top_scores = {}
+    for i, index in enumerate(top_indices):
+        top_scores[top_books[i]] = combined_sent[0][index]
+    print(top_scores)
 
     # Top 5 features between mov descript and book descript
     feature_names = vectorizer.get_feature_names()
@@ -178,7 +182,7 @@ def cosine_sim_w_sent(movie_title, book_description, movie_reviews, movie_descri
         book_scores[book] = [book_vector.toarray()[0][vectorizer.vocabulary_[feat]]
                              for feat, score in features]
 
-    plot(book_scores, movie_title, features)
+    plot(book_scores, movie_title, features, top_scores)
     # # plot movie description and review vector scores
     # ax.plot(features, movie_desc_vector.toarray()[0][vectorizer.vocabulary_[feat]] for feat in movie_desc_features)
     # ax.plot(features, movie_review_vector.toarray()[0][vectorizer.vocabulary_[feat]] for feat in movie_review_features)
@@ -195,25 +199,39 @@ def home():
 
 
 @app.route('/plot')
-def plot(book_scores, movie_title, top_features):
-    fig, ax = plt.subplots(figsize=(5,5)) # Adjust the size of the figure
-    for book, scores in book_scores.items():
-        ax.plot(scores, label=book)
+def plot(book_scores, movie_title, top_features, top_scores):
+    fig, ax = plt.subplots(figsize=(5, 5))  # Adjust the size of the figure
+    max_len = 0
+    for i, tup in enumerate(list(book_scores.items())):
+        book, scores = tup
+        max_len = max(max_len, len(book))
+
+    if max_len > 50:
+        max_len = 53
+    for i, tup in enumerate(list(book_scores.items())):
+        book, scores = tup
+        new_book = book
+        if len(book) > 50:
+            new_book = book[:51] + "..."
+        line = ax.plot(
+            scores, label=f"{new_book}" + " " * (max_len - len(new_book) + 5) + f"Similarity Score: {round(top_scores[book], 4)}")
 
     features = [feat for feat, val in top_features]
     feature_vals = [val for feat, val in top_features]
     ax.set_xticks(range(len(features)))
     ax.set_xticklabels(features, rotation=90)
-    
-    #plot movie
+
+    # plot movie
     ax.plot(feature_vals, label=movie_title)
 
     ax.set_xlabel('Features')
     ax.set_ylabel('TF-IDF Score')
     ax.set_title(f'TF-IDF Scores for {movie_title} and related books')
-    
-    ax.legend(fontsize=10, loc='upper left', bbox_to_anchor=(1, 1))
-    
+
+    legend = ax.legend(fontsize=10, loc='upper left', bbox_to_anchor=(1, 1))
+    for text in legend.get_texts():
+        text.set_fontname("Courier New")
+
     buffer = io.BytesIO()
     plt.savefig(buffer, format='png', bbox_inches='tight')
     buffer.seek(0)
