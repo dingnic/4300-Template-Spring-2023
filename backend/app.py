@@ -1,29 +1,29 @@
+import matplotlib
+from collections import defaultdict
+from flask_cors import CORS
+from flask import Flask, render_template, request
+import json
+import csv
+import pandas as pd
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.metrics.pairwise import cosine_similarity
+import numpy as np
+from textblob import TextBlob
 from flask import Response
 import io
 import matplotlib.pyplot as plt
 import os
 
-# pand = "python -m pip install pandas"
-# skl = "python -m pip install scikit-learn"
-# nump = "python pip install numpy"
-# tb = "python -m pip install textblob"
-# mlib = "python -m pip install matplotlib"
-# os.system(pand)
-# os.system(skl)
-# os.system(nump)
-# os.system(tb)
-# os.system(mlib)
-from textblob import TextBlob
-import numpy as np
-from sklearn.metrics.pairwise import cosine_similarity
-from sklearn.feature_extraction.text import TfidfVectorizer
-import pandas as pd
-import csv
-import json
-from flask import Flask, render_template, request
-from flask_cors import CORS
-from collections import defaultdict
-import matplotlib
+pand = "python -m pip install pandas"
+skl = "python -m pip install scikit-learn"
+nump = "python pip install numpy"
+tb = "python -m pip install textblob"
+mlib = "python -m pip install matplotlib"
+os.system(pand)
+os.system(skl)
+os.system(nump)
+os.system(tb)
+os.system(mlib)
 matplotlib.use('agg')
 
 
