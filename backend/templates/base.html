@@ -21,9 +21,8 @@
         <div id="answer-box">
         </div>
         <div>
-            <button id="help">?</button>
+            <button id="help" onclick="updateImg()">?</button>
             <div id="help-panel">
-                <img src="{{ url_for('static', filename='../static/images/plot.png') }}" alt="Plot">
             </div>
         </div>
         <div id="text-above-button">Click here for more data insights</div>
@@ -118,6 +117,14 @@
                         console.error("Error fetching movies:", error);
                     });
 
+            }
+            function updateImg() {
+                let plotImg = document.createElement("img");
+                plotImg.src = "{{ url_for('static', filename='../static/images/plot.png') }}";
+                plotImg.alt = "Plot";
+                let helpPanel = document.getElementById("help-panel");
+                helpPanel.innerHTML = ""; // Remove any existing image from the help panel
+                helpPanel.appendChild(plotImg);
             }
 
             function generateRec() {

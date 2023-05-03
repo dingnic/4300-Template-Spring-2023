@@ -195,18 +195,20 @@ def home():
 
 @app.route('/plot')
 def plot(book_scores, movie_title):
-    fig, ax = plt.subplots()
+    fig, ax = plt.subplots(figsize=(5,5)) # Adjust the size of the figure
     for book, scores in book_scores.items():
         ax.plot(scores, label=book)
 
     ax.set_xlabel('Features')
     ax.set_ylabel('TF-IDF Score')
     ax.set_title(f'TF-IDF Scores for {movie_title} and related books')
-    ax.legend()
-
+    
+    # Adjust the font size of the legend
+    ax.legend(fontsize=10, loc='upper left', bbox_to_anchor=(1, 1))
+    
     # Save the plot to a memory buffer
     buffer = io.BytesIO()
-    plt.savefig(buffer, format='png')
+    plt.savefig(buffer, format='png', bbox_inches='tight') # Use bbox_inches='tight' to avoid cutting off the legend
     buffer.seek(0)
 
     filepath = os.path.join('static', 'images', 'plot.png')
@@ -215,6 +217,7 @@ def plot(book_scores, movie_title):
 
     # Send the image as a response
     return Response(buffer.getvalue(), mimetype='image/png')
+
 
 
 @ app.route("/movie-search")
