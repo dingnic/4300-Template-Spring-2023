@@ -22,7 +22,7 @@
         </div>
         <div>
             <button id="help" onclick="updateImg()">?</button>
-            <div id="help-panel">
+            <div class="graph" id="help-panel">
             </div>
         </div>
         <div id="text-above-button">Click here for more data insights</div>
@@ -122,6 +122,8 @@
                 let plotImg = document.createElement("img");
                 plotImg.src = "{{ url_for('static', filename='../static/images/plot.png') }}?" + Date.now();
                 plotImg.alt = "Plot";
+                plotImg.style.display = "block";
+                plotImg.style.margin = "0 auto";
                 let helpPanel = document.getElementById("help-panel");
                 helpPanel.innerHTML = ""; // Remove any existing image from the help panel
                 helpPanel.appendChild(plotImg);
