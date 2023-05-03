@@ -1,16 +1,16 @@
 
 import os
 
-pand = "python -m pip install pandas"
-skl = "python -m pip install scikit-learn"
-nump = "python pip install numpy"
-tb = "python -m pip install textblob"
-mlib = "python -m pip install matplotlib"
-os.system(pand)
-os.system(skl)
-os.system(nump)
-os.system(tb)
-os.system(mlib)
+# pand = "python -m pip install pandas"
+# skl = "python -m pip install scikit-learn"
+# nump = "python pip install numpy"
+# tb = "python -m pip install textblob"
+# mlib = "python -m pip install matplotlib"
+# os.system(pand)
+# os.system(skl)
+# os.system(nump)
+# os.system(tb)
+# os.system(mlib)
 
 import matplotlib
 from collections import defaultdict
@@ -205,6 +205,7 @@ def home():
 @app.route('/plot')
 def plot(book_scores, movie_title, top_features, top_scores):
     fig, ax = plt.subplots(figsize=(5, 5))  # Adjust the size of the figure
+    fig.patch.set_facecolor('#808080')
     max_len = 0
     for i, tup in enumerate(list(book_scores.items())):
         book, scores = tup
