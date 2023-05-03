@@ -195,8 +195,8 @@ def home():
 
 
 @app.route('/plot')
-def plot(book_scores, movie_title):
-    fig, ax = plt.subplots(figsize=(5, 5))  # Adjust the size of the figure
+def plot(book_scores, movie_title, top_features):
+    fig, ax = plt.subplots(figsize=(5,5)) # Adjust the size of the figure
     for book, scores in book_scores.items():
         ax.plot(scores, label=book)
 
@@ -211,13 +211,10 @@ def plot(book_scores, movie_title):
     ax.set_xlabel('Features')
     ax.set_ylabel('TF-IDF Score')
     ax.set_title(f'TF-IDF Scores for {movie_title} and related books')
-
-    # Adjust the font size of the legend
+    
     ax.legend(fontsize=10, loc='upper left', bbox_to_anchor=(1, 1))
-
-    # Save the plot to a memory buffer
+    
     buffer = io.BytesIO()
-    # Use bbox_inches='tight' to avoid cutting off the legend
     plt.savefig(buffer, format='png', bbox_inches='tight')
     buffer.seek(0)
 
