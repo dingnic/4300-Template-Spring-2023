@@ -1,16 +1,16 @@
 
 import os
 
-# pand = "python -m pip install pandas"
-# skl = "python -m pip install scikit-learn"
-# nump = "python pip install numpy"
-# tb = "python -m pip install textblob"
-# mlib = "python -m pip install matplotlib"
-# os.system(pand)
-# os.system(skl)
-# os.system(nump)
-# os.system(tb)
-# os.system(mlib)
+pand = "python -m pip install pandas"
+skl = "python -m pip install scikit-learn"
+nump = "python pip install numpy"
+tb = "python -m pip install textblob"
+mlib = "python -m pip install matplotlib"
+os.system(pand)
+os.system(skl)
+os.system(nump)
+os.system(tb)
+os.system(mlib)
 
 import matplotlib
 from collections import defaultdict
