@@ -1,3 +1,17 @@
+
+import os
+
+pand = "python -m pip install pandas"
+skl = "python -m pip install scikit-learn"
+nump = "python pip install numpy"
+tb = "python -m pip install textblob"
+mlib = "python -m pip install matplotlib"
+os.system(pand)
+os.system(skl)
+os.system(nump)
+os.system(tb)
+os.system(mlib)
+
 import matplotlib
 from collections import defaultdict
 from flask_cors import CORS
@@ -12,19 +26,9 @@ from textblob import TextBlob
 from flask import Response
 import io
 import matplotlib.pyplot as plt
-import os
 
-pand = "python -m pip install pandas"
-skl = "python -m pip install scikit-learn"
-nump = "python pip install numpy"
-tb = "python -m pip install textblob"
-mlib = "python -m pip install matplotlib"
-os.system(pand)
-os.system(skl)
-os.system(nump)
-os.system(tb)
-os.system(mlib)
 matplotlib.use('agg')
+
 
 
 os.environ['ROOT_PATH'] = os.path.abspath(os.path.join("..", os.curdir))
