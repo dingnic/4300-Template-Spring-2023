@@ -1,33 +1,34 @@
 
+import matplotlib.pyplot as plt
+import io
+from flask import Response
+from textblob import TextBlob
+import numpy as np
+from sklearn.metrics.pairwise import cosine_similarity
+from sklearn.feature_extraction.text import TfidfVectorizer
+import pandas as pd
+import csv
+import json
+from flask import Flask, render_template, request
+from flask_cors import CORS
+from collections import defaultdict
+import matplotlib
 import os
 
-pand = "python -m pip install pandas"
-skl = "python -m pip install scikit-learn"
-nump = "python pip install numpy"
-tb = "python -m pip install textblob"
-mlib = "python -m pip install matplotlib"
-os.system(pand)
-os.system(skl)
-os.system(nump)
-os.system(tb)
-os.system(mlib)
+# pand = "python -m pip install pandas"
+# skl = "python -m pip install scikit-learn"
+# nump = "python pip install numpy"
+# tb = "python -m pip install textblob"
+# mlib = "python -m pip install matplotlib"
+# os.system(pand)
+# os.system(skl)
+# os.system(nump)
+# os.system(tb)
+# os.system(mlib)
 
-import matplotlib
-from collections import defaultdict
-from flask_cors import CORS
-from flask import Flask, render_template, request
-import json
-import csv
-import pandas as pd
-from sklearn.feature_extraction.text import TfidfVectorizer
-from sklearn.metrics.pairwise import cosine_similarity
-import numpy as np
-from textblob import TextBlob
-from flask import Response
-import io
-import matplotlib.pyplot as plt
 
 matplotlib.use('agg')
+plt.rcParams['font.family'] = 'Courier New'
 
 
 os.environ['ROOT_PATH'] = os.path.abspath(os.path.join("..", os.curdir))
@@ -225,14 +226,14 @@ def plot(book_scores, movie_title, top_features, top_scores, dd, rd, book_review
     for i, tup in enumerate(list(book_scores.items())):
         book, scores = tup
         max_len = max(max_len, len(book))
-    bound = 50
+    bound = 40
     if max_len > bound:
         max_len = bound + 3
     for i, tup in enumerate(list(book_scores.items())):
         book, scores = tup
         new_book = book
-        if len(book) > 49:
-            new_book = book[:50] + "..."
+        if len(book) > bound:
+            new_book = book[:bound + 1] + "..."
         line = ax.plot(
             scores, label=f"{new_book}" + " " * (max_len - len(new_book) + 2) + f"sim: {top_scores[book]:.3f}  d-d: {dd[book]:.3f}  d-r: {rd[book]:.3f}  sent: {get_sent(book_review_sents.get(book, [1]))}")
 
@@ -242,15 +243,17 @@ def plot(book_scores, movie_title, top_features, top_scores, dd, rd, book_review
     ax.set_xticklabels(features, rotation=90)
 
     # plot movie
-    ax.plot(feature_vals, label=movie_title)
+    #ax.plot(feature_vals, label=movie_title)
+    ax.plot(feature_vals, label=movie_title,
+            color='black', linestyle=':', linewidth=3)
 
     ax.set_xlabel('Features')
     ax.set_ylabel('TF-IDF Score')
     ax.set_title(f'TF-IDF Scores for {movie_title} and related books')
 
     legend = ax.legend(fontsize=10, loc='upper left', bbox_to_anchor=(1, 1))
-    for text in legend.get_texts():
-        text.set_fontname("Courier New")
+    # for text in legend.get_texts():
+    #     text.set_fontname("Courier New")
 
     buffer = io.BytesIO()
     plt.savefig(buffer, format='png', bbox_inches='tight')
