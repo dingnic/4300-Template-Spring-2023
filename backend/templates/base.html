@@ -125,6 +125,10 @@
                 let helpPanel = document.getElementById("help-panel");
                 helpPanel.innerHTML = ""; // Remove any existing image from the help panel
                 helpPanel.appendChild(plotImg);
+                let textDiv = document.createElement("div");
+                textDiv.textContent = "  Note: The first five features in the graph are the top 5 most relevant features for comparing the movie description and book description, and the last 5 features are the top 5 for comparing the movie review and book description.";
+                helpPanel.style.color = "white";
+                helpPanel.appendChild(textDiv);
             }
 
             function generateRec() {
