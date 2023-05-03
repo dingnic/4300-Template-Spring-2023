@@ -9,16 +9,20 @@ import json
 from flask import Flask, render_template, request
 from flask_cors import CORS
 from collections import defaultdict
-import random
+import matplotlib
+matplotlib.use('agg')
+import matplotlib.pyplot as plt
+import io
+from flask import Response
 
-pand = "python -m pip install pandas"
-skl = "python -m pip install scikit-learn"
-nump = "python pip install numpy"
-tb = "python pip install textblob"
-os.system(pand)
-os.system(skl)
-os.system(nump)
-os.system(tb)
+# pand = "python -m pip install pandas"
+# skl = "python -m pip install scikit-learn"
+# nump = "python pip install numpy"
+# tb = "python pip install textblob"
+# os.system(pand)
+# os.system(skl)
+# os.system(nump)
+# os.system(tb)
 
 
 os.environ['ROOT_PATH'] = os.path.abspath(os.path.join("..", os.curdir))
@@ -54,7 +58,6 @@ neutral_factor = 1.0
 negative_factor = 0.8
 with open('data/books_reviews.csv', 'r') as csvfile:
     csvreader = csv.DictReader(csvfile)
-    print(csvreader.fieldnames)
     for row in csvreader:
         book = row['book_title']
         rev = row['review']
@@ -65,7 +68,6 @@ with open('data/books_reviews.csv', 'r') as csvfile:
 
 with open('data/books_description.csv', 'r') as csvfile:
     csvreader = csv.DictReader(csvfile)
-    print(csvreader.fieldnames)
     for row in csvreader:
         book = row['book_title']
         desc = row['description']
@@ -151,6 +153,36 @@ def cosine_sim_w_sent(movie_title, book_description, movie_reviews, movie_descri
     top_indices = combined_sent.argsort()[0][-10:][::-1]
     top_books = [list(book_description.keys())[i] for i in top_indices]
 
+
+
+
+    # Top 5 features between mov descript and book descript
+    feature_names = vectorizer.get_feature_names()
+    movie_feature_scores = list(zip(feature_names, movie_vector.toarray()[0]))
+    top_features = sorted(movie_feature_scores, key=lambda x: x[1], reverse=True)[:5]
+    # Top 5 features between mov rev and book descp
+    movie_feature_scores_sec = list(zip(feature_names, movie_rev_vector.toarray()[0]))
+    top_features_new = sorted(movie_feature_scores_sec, key=lambda x: x[1], reverse=True)[:5]
+
+
+    # combine features
+    features = top_features + top_features_new
+    print("Top 5 feature of movie descript + review ", features)
+
+    # get tfidf vectors for books and extract scores for each feature
+    book_scores = {}
+    for book in top_books:
+        description = book_description[book]
+        book_vector = vectorizer.transform([description])
+        book_scores[book] = [book_vector.toarray()[0][vectorizer.vocabulary_[feat]] for feat, score in features]
+
+
+    plot(book_scores, movie_title)
+    # # plot movie description and review vector scores
+    # ax.plot(features, movie_desc_vector.toarray()[0][vectorizer.vocabulary_[feat]] for feat in movie_desc_features)
+    # ax.plot(features, movie_review_vector.toarray()[0][vectorizer.vocabulary_[feat]] for feat in movie_review_features)
+
+
     out = []
     for i, book in enumerate(top_books):
         out.append(book)
@@ -160,6 +192,29 @@ def cosine_sim_w_sent(movie_title, book_description, movie_reviews, movie_descri
 @ app.route("/")
 def home():
     return render_template('base.html', title="sample html")
+
+@app.route('/plot')
+def plot(book_scores, movie_title):
+    fig, ax = plt.subplots()
+    for book, scores in book_scores.items():
+        ax.plot(scores, label=book)
+
+    ax.set_xlabel('Features')
+    ax.set_ylabel('TF-IDF Score')
+    ax.set_title(f'TF-IDF Scores for {movie_title} and related books')
+    ax.legend()
+
+    # Save the plot to a memory buffer
+    buffer = io.BytesIO()
+    plt.savefig(buffer, format='png')
+    buffer.seek(0)
+
+    filepath = os.path.join('static', 'images', 'plot.png')
+    with open(filepath, 'wb') as f:
+        f.write(buffer.getvalue())
+
+    # Send the image as a response
+    return Response(buffer.getvalue(), mimetype='image/png')
 
 
 @ app.route("/movie-search")
