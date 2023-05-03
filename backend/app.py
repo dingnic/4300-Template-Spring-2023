@@ -1,19 +1,4 @@
-from textblob import TextBlob
-import numpy as np
-from sklearn.metrics.pairwise import cosine_similarity
-from sklearn.feature_extraction.text import TfidfVectorizer
-import pandas as pd
-import csv
 import os
-import json
-from flask import Flask, render_template, request
-from flask_cors import CORS
-from collections import defaultdict
-import matplotlib
-matplotlib.use('agg')
-import matplotlib.pyplot as plt
-import io
-from flask import Response
 
 pand = "python -m pip install pandas"
 skl = "python -m pip install scikit-learn"
@@ -23,6 +8,22 @@ os.system(pand)
 os.system(skl)
 os.system(nump)
 os.system(tb)
+
+from textblob import TextBlob
+import numpy as np
+from sklearn.metrics.pairwise import cosine_similarity
+from sklearn.feature_extraction.text import TfidfVectorizer
+import pandas as pd
+import csv
+import json
+from flask import Flask, render_template, request
+from flask_cors import CORS
+from collections import defaultdict
+import matplotlib
+matplotlib.use('agg')
+import matplotlib.pyplot as plt
+import io
+from flask import Response
 
 
 os.environ['ROOT_PATH'] = os.path.abspath(os.path.join("..", os.curdir))
